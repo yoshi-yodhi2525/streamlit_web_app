@@ -4,6 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import seaborn as sns
 from wordcloud import WordCloud
 import re
@@ -19,6 +20,16 @@ warnings.filterwarnings('ignore')
 
 # フォント設定のインポート
 from fonts import get_japanese_font_path, get_font_family
+
+# Matplotlibのフォント設定
+font_path = get_japanese_font_path()
+if font_path:
+    # フォントファイルをMatplotlibに登録
+    font_prop = fm.FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = font_prop.get_name()
+    # フォールバックフォントの設定
+    plt.rcParams['font.sans-serif'] = ['Noto Sans JP', 'DejaVu Sans', 'sans-serif']
+    plt.rcParams['axes.unicode_minus'] = False
 
 # ページ設定
 st.set_page_config(
@@ -102,7 +113,7 @@ def preprocess_text(text):
     text = re.sub(r'@\w+', '', text)
     
     # 絵文字の除去
-    text = emoji.replace_emojis(text, replace='')
+    text = emoji.replace_emoji(text, replace='')
     
     # 特殊文字の除去
     text = re.sub(r'[^\w\s#]', ' ', text)
@@ -311,8 +322,12 @@ if uploaded_file is not None:
                         
                         # プロット
                         fig, ax = plt.subplots(figsize=(12, 8))
-                        # フォントファミリーの設定
-                        font_family = get_font_family()
+                        # 日本語フォントの設定
+                        font_path = get_japanese_font_path()
+                        if font_path:
+                            font_prop = fm.FontProperties(fname=font_path)
+                        else:
+                            font_prop = fm.FontProperties()
                         
                         nx.draw(
                             G, pos,
@@ -320,11 +335,11 @@ if uploaded_file is not None:
                             node_color='lightblue',
                             node_size=[G.degree(node) * 100 for node in G.nodes()],
                             font_size=8,
-                            font_family=font_family,
+                            font_family=font_prop.get_name(),
                             edge_color='gray',
                             width=[G[u][v]['weight'] / 2 for u, v in G.edges()]
                         )
-                        plt.title("単語共起ネットワーク")
+                        plt.title("単語共起ネットワーク", fontsize=14)
                         st.pyplot(fig)
                         
                         # 共起頻度の表

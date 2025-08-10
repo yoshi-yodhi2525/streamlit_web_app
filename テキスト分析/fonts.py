@@ -6,6 +6,13 @@ def get_japanese_font_path():
     """
     システムに応じた日本語フォントのパスを取得
     """
+    # ユーザーが提供したフォントファイルを優先的に使用
+    current_dir = Path(__file__).parent
+    user_font_path = current_dir / "NotoSansJP-VariableFont_wght.ttf"
+    
+    if user_font_path.exists():
+        return str(user_font_path)
+    
     system = platform.system()
     
     if system == "Windows":
@@ -48,6 +55,13 @@ def get_font_family():
     """
     システムに応じたフォントファミリーを取得
     """
+    # ユーザーが提供したフォントファイルが存在する場合は、そのフォントファミリーを返す
+    current_dir = Path(__file__).parent
+    user_font_path = current_dir / "NotoSansJP-VariableFont_wght.ttf"
+    
+    if user_font_path.exists():
+        return "Noto Sans JP, sans-serif"
+    
     system = platform.system()
     
     if system == "Windows":
